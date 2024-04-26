@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const touristsSpotCollection = client.db("touristsSpotDB").collection("touristsSpot");
 
@@ -54,6 +54,28 @@ async function run() {
       const tourist = req.body;
       console.log(tourist);
       const result = await touristsSpotCollection.insertOne(tourist);
+      res.send(result);
+    });
+
+    app.put(`/single-tourists/:id`, async (req, res) => {
+      const id = req.params.id
+      const tourist = req.body
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const updateTourist = {
+        $set: {
+        touristsSpotName : tourist.touristsSpotName,
+        countryName : tourist.countryName,
+        averageCost : tourist.averageCost,
+        description : tourist.description,
+        location : tourist.location,
+        travelTime : tourist.travelTime,
+        totalVisitors : tourist.totalVisitors,
+        seasonality : tourist.seasonality,
+        photo : tourist.photo,
+        }
+      } 
+      const result = await touristsSpotCollection.updateOne(filter, updateTourist, options)
       res.send(result);
     });
 
