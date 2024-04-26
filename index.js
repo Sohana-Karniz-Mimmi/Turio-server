@@ -26,7 +26,10 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const touristsSpotCollection = client.db("touristsSpotDB").collection("touristsSpot");
+    const touristsSpotCollection = client
+      .db("touristsSpotDB")
+      .collection("touristsSpot");
+      const userCollection = client.db('newTouristUserDB').collection('users');
 
     // Tourists Spot
     app.get(`/tourists`, async (req, res) => {
@@ -37,8 +40,8 @@ async function run() {
 
     app.get(`/tourists/:email`, async (req, res) => {
       const email = req.params.email;
-      const query = {email: email};
-      const cursor =  touristsSpotCollection.find(query);
+      const query = { email: email };
+      const cursor = touristsSpotCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -58,24 +61,28 @@ async function run() {
     });
 
     app.put(`/single-tourists/:id`, async (req, res) => {
-      const id = req.params.id
-      const tourist = req.body
-      const filter = {_id: new ObjectId(id)}
-      const options = {upsert: true}
+      const id = req.params.id;
+      const tourist = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
       const updateTourist = {
         $set: {
-        touristsSpotName : tourist.touristsSpotName,
-        countryName : tourist.countryName,
-        averageCost : tourist.averageCost,
-        description : tourist.description,
-        location : tourist.location,
-        travelTime : tourist.travelTime,
-        totalVisitors : tourist.totalVisitors,
-        seasonality : tourist.seasonality,
-        photo : tourist.photo,
-        }
-      } 
-      const result = await touristsSpotCollection.updateOne(filter, updateTourist, options)
+          touristsSpotName: tourist.touristsSpotName,
+          countryName: tourist.countryName,
+          averageCost: tourist.averageCost,
+          description: tourist.description,
+          location: tourist.location,
+          travelTime: tourist.travelTime,
+          totalVisitors: tourist.totalVisitors,
+          seasonality: tourist.seasonality,
+          photo: tourist.photo,
+        },
+      };
+      const result = await touristsSpotCollection.updateOne(
+        filter,
+        updateTourist,
+        options
+      );
       res.send(result);
     });
 
@@ -84,6 +91,29 @@ async function run() {
       console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await touristsSpotCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // Users
+
+    app.get(`/users`, async(req, res) => {
+      const cursor = userCollection.find()
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.get(`/users/:id`, async(req, res) =>{
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+      
+    });
+    
+    app.post(`/users`, async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
