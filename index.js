@@ -29,7 +29,8 @@ async function run() {
     const touristsSpotCollection = client
       .db("touristsSpotDB")
       .collection("touristsSpot");
-      const userCollection = client.db('newTouristUserDB').collection('users');
+    const userCollection = client.db("newTouristUserDB").collection("users");
+    const countriesCollection = client.db("countriesDB").collection("country");
 
     // Tourists Spot
     app.get(`/tourists`, async (req, res) => {
@@ -94,22 +95,44 @@ async function run() {
       res.send(result);
     });
 
-    // Users
+    // Countries
+    app.post(`/countries`, async (req, res) => {
+      const countries = req.body;
+      console.log(countries);
+      const result = await countriesCollection.insertOne(countries);
+      res.send(result);
+    });
 
-    app.get(`/users`, async(req, res) => {
-      const cursor = userCollection.find()
+    app.get(`/countries`, async (req, res) => {
+      const cursor = countriesCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
-    app.get(`/users/:id`, async(req, res) =>{
-      const id = req.params.id
+    app.get(`/countries/:countryName`, async (req, res) => {
+      const countryName = req.params.countryName;
+      const query = { countryName: countryName };
+      const cursor = countriesCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+
+    // Users
+
+    app.get(`/users`, async (req, res) => {
+      const cursor = userCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get(`/users/:id`, async (req, res) => {
+      const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.findOne(query);
       res.send(result);
-      
     });
-    
+
     app.post(`/users`, async (req, res) => {
       const user = req.body;
       console.log(user);
